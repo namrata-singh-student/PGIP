@@ -1,0 +1,4 @@
+{
+  "git.diagnosticsCommitHook.enabled": false,
+  "git.enabled": true
+}
