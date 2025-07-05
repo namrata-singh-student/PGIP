@@ -1,4 +1,5 @@
 const express = require("express");
+const router = require("./router");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
@@ -28,7 +29,7 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     message: "PGIP Backend is running",
     timestamp: new Date().toISOString(),
-    version: "1.0.0"
+    version: "1.0.0",
   });
 });
 
@@ -44,27 +45,30 @@ app.get("/api", (req, res) => {
         "POST /api/auth/forgot-password": "Request password reset",
         "POST /api/auth/reset-password": "Reset password",
         "GET /api/auth/profile": "Get user profile (protected)",
-        "PUT /api/auth/profile": "Update user profile (protected)"
+        "PUT /api/auth/profile": "Update user profile (protected)",
       },
       schemes: {
         "GET /api/schemes": "Get all schemes",
         "GET /api/schemes/search": "Search schemes",
         "GET /api/schemes/category/:category": "Get schemes by category",
         "GET /api/schemes/:id": "Get scheme by ID",
-        "GET /api/schemes/personalized/recommendations": "Get personalized schemes (protected)",
+        "GET /api/schemes/personalized/recommendations":
+          "Get personalized schemes (protected)",
         "POST /api/schemes": "Create new scheme (admin)",
         "PUT /api/schemes/:id": "Update scheme (admin)",
-        "DELETE /api/schemes/:id": "Delete scheme (admin)"
+        "DELETE /api/schemes/:id": "Delete scheme (admin)",
       },
       notifications: {
         "GET /api/notifications": "Get user notifications (protected)",
         "GET /api/notifications/stats": "Get notification stats (protected)",
-        "PUT /api/notifications/:id/read": "Mark notification as read (protected)",
-        "PUT /api/notifications/read-all": "Mark all notifications as read (protected)",
+        "PUT /api/notifications/:id/read":
+          "Mark notification as read (protected)",
+        "PUT /api/notifications/read-all":
+          "Mark all notifications as read (protected)",
         "DELETE /api/notifications/:id": "Delete notification (protected)",
-        "POST /api/notifications": "Create notification (admin)"
-      }
-    }
+        "POST /api/notifications": "Create notification (admin)",
+      },
+    },
   });
 });
 
