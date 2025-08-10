@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: pgip-backend
+    env: node
+    plan: free
+    buildCommand: cd pgip-backend && npm install
+    startCommand: cd pgip-backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
