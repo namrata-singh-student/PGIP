@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
 
 const ContactModal = ({ show, onHide }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
   });
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -24,21 +24,21 @@ const ContactModal = ({ show, onHide }) => {
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert('Thank you for your message! We will get back to you soon.');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      alert("Thank you for your message! We will get back to you soon.");
       onHide();
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
-      console.error('Contact form error:', error);
-      alert('An error occurred. Please try again.');
+      console.error("Contact form error:", error);
+      alert("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleClose = () => {
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setFormData({ name: "", email: "", subject: "", message: "" });
     onHide();
   };
 
@@ -51,21 +51,33 @@ const ContactModal = ({ show, onHide }) => {
         <div className="row">
           <div className="col-md-6">
             <h5>Get in Touch</h5>
-            <p>Have questions about government schemes or need assistance? We're here to help!</p>
-            
+            <p>
+              Have questions about government schemes or need assistance? We're
+              here to help!
+            </p>
+
             <div className="mt-4">
-              <h6><i className="fas fa-envelope me-2"></i>Email</h6>
+              <h6>
+                <i className="fas fa-envelope me-2"></i>Email
+              </h6>
               <p>support@pgip.gov.in</p>
-              
-              <h6><i className="fas fa-phone me-2"></i>Phone</h6>
-              <p>1800-XXX-XXXX (Toll Free)</p>
-              
-              <h6><i className="fas fa-map-marker-alt me-2"></i>Address</h6>
-              <p>Government of India<br />
-              New Delhi, India</p>
+              <p>namratasingh2308@gmail.com</p>
+              <h6>
+                <i className="fas fa-phone me-2"></i>Phone
+              </h6>
+              <p>6291163760 (Toll Free)</p>
+
+              <h6>
+                <i className="fas fa-map-marker-alt me-2"></i>Address
+              </h6>
+              <p>
+                Government of India
+                <br />
+                New Delhi, India
+              </p>
             </div>
           </div>
-          
+
           <div className="col-md-6">
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-3">
@@ -79,7 +91,7 @@ const ContactModal = ({ show, onHide }) => {
                   required
                 />
               </Form.Group>
-              
+
               <Form.Group className="mb-3">
                 <Form.Label>Email Address *</Form.Label>
                 <Form.Control
@@ -91,7 +103,7 @@ const ContactModal = ({ show, onHide }) => {
                   required
                 />
               </Form.Group>
-              
+
               <Form.Group className="mb-3">
                 <Form.Label>Subject *</Form.Label>
                 <Form.Control
@@ -103,7 +115,7 @@ const ContactModal = ({ show, onHide }) => {
                   required
                 />
               </Form.Group>
-              
+
               <Form.Group className="mb-3">
                 <Form.Label>Message *</Form.Label>
                 <Form.Control
@@ -116,14 +128,14 @@ const ContactModal = ({ show, onHide }) => {
                   required
                 />
               </Form.Group>
-              
-              <Button 
-                variant="primary" 
-                type="submit" 
+
+              <Button
+                variant="primary"
+                type="submit"
                 disabled={loading}
                 className="w-100"
               >
-                {loading ? 'Sending...' : 'Send Message'}
+                {loading ? "Sending..." : "Send Message"}
               </Button>
             </Form>
           </div>
@@ -133,4 +145,4 @@ const ContactModal = ({ show, onHide }) => {
   );
 };
 
-export default ContactModal; 
+export default ContactModal;
