@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaBullhorn, FaGraduationCap, FaFileInvoiceDollar, FaClock, FaExclamationTriangle, FaInbox, FaSpinner } from 'react-icons/fa';
 
 const ServiceDetails = ({ serviceType, onClose }) => {
   const [data, setData] = useState([]);
@@ -7,17 +8,13 @@ const ServiceDetails = ({ serviceType, onClose }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchData();
-  }, [serviceType, currentPage]);
+  console.log('ServiceDetails rendered with:', { serviceType, onClose });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
     try {
       let url = '';
-      
       switch (serviceType) {
         case 'schemes':
           url = `/api/schemes?page=${currentPage}&limit=6`;
@@ -28,27 +25,18 @@ const ServiceDetails = ({ serviceType, onClose }) => {
         case 'tax':
           url = `/api/notifications/type/tax?page=${currentPage}&limit=6`;
           break;
+        case 'documents':
+          url = `/api/schemes/category/documents?page=${currentPage}&limit=6`;
+          break;
         default:
           url = `/api/schemes?page=${currentPage}&limit=6`;
       }
-
       const token = localStorage.getItem('token');
-      const headers = {
-        'Content-Type': 'application/json'
-      };
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const response = await fetch(url, { headers });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-
+      if (!response.ok) throw new Error('Failed to fetch data');
       const result = await response.json();
-      
       if (serviceType === 'tax') {
         setData(result.notifications || []);
         setTotalPages(result.totalPages || 1);
@@ -56,20 +44,25 @@ const ServiceDetails = ({ serviceType, onClose }) => {
         setData(result.schemes || []);
         setTotalPages(result.totalPages || 1);
       }
-      
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Failed to load data. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [serviceType, currentPage]);
+
+  useEffect(() => {
+    console.log('ServiceDetails useEffect triggered, fetching data for:', serviceType);
+    fetchData();
+  }, [fetchData, serviceType]);
 
   const getServiceTitle = () => {
     switch (serviceType) {
       case 'schemes': return 'Government Schemes';
       case 'exams': return 'Competitive Exams & Education';
       case 'tax': return 'Tax Updates & Notifications';
+      case 'documents': return 'Document Services';
       default: return 'Service Details';
     }
   };
@@ -79,38 +72,65 @@ const ServiceDetails = ({ serviceType, onClose }) => {
       case 'schemes': return 'Discover government schemes tailored to your profile and needs.';
       case 'exams': return 'Stay updated with latest competitive exams and educational opportunities.';
       case 'tax': return 'Get the latest tax-related updates and important notifications.';
+      case 'documents': return 'Access government document services and applications.';
       default: return 'Service information and updates.';
     }
+  };
+
+  const formatEligibility = (eligibility) => {
+    if (!eligibility) return 'Not specified';
+    
+    if (typeof eligibility === 'string') return eligibility;
+    
+    if (typeof eligibility === 'object') {
+      const parts = [];
+      
+      if (eligibility.age) parts.push(`Age: ${eligibility.age}`);
+      if (eligibility.income) parts.push(`Income: ${eligibility.income}`);
+      if (eligibility.occupation) parts.push(`Occupation: ${eligibility.occupation}`);
+      if (eligibility.education) parts.push(`Education: ${eligibility.education}`);
+      if (eligibility.state) parts.push(`State: ${eligibility.state}`);
+      if (eligibility.gender) parts.push(`Gender: ${eligibility.gender}`);
+      
+      return parts.length > 0 ? parts.join(', ') : 'Not specified';
+    }
+    
+    return 'Not specified';
   };
 
   const renderSchemeCard = (scheme) => (
     <div key={scheme._id} className="col-md-6 col-lg-4 mb-4">
       <div className="card h-100 shadow-sm">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-start mb-2">
-            <h6 className="card-title mb-0">{scheme.title}</h6>
-            <span className={`badge ${scheme.status === 'active' ? 'bg-success' : scheme.status === 'upcoming' ? 'bg-warning' : 'bg-secondary'}`}>
-              {scheme.status}
-            </span>
+          <h6 className="card-title text-primary fw-bold">{scheme.title}</h6>
+          <p className="card-text small text-muted mb-2">{scheme.description}</p>
+          
+          <div className="mb-3">
+            <small className="text-muted">
+              <strong>Eligibility:</strong> {formatEligibility(scheme.eligibility)}
+            </small>
           </div>
-          <p className="card-text small text-muted">{scheme.description.substring(0, 100)}...</p>
-          <div className="mb-2">
-            <span className="badge bg-primary me-1">{scheme.category}</span>
-            {scheme.budget && (
-              <span className="badge bg-info">₹{scheme.budget.toLocaleString()}</span>
-            )}
+          
+          <div className="mb-3">
+            <small className="text-muted">
+              <strong>Benefits:</strong> {scheme.benefits}
+            </small>
           </div>
-          {scheme.deadline && (
-            <p className="small text-danger mb-0">
-              <i className="fas fa-clock me-1"></i>
-              Deadline: {new Date(scheme.deadline).toLocaleDateString()}
-            </p>
-          )}
-        </div>
-        <div className="card-footer bg-transparent">
-          <button className="btn btn-outline-primary btn-sm w-100">
-            View Details
-          </button>
+          
+          <div className="d-flex justify-content-between align-items-center">
+            <span className="badge bg-success">{scheme.category}</span>
+            <button 
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Handle view details - you can add more functionality here
+                console.log('View details for:', scheme.title);
+              }}
+            >
+              View Details
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -120,37 +140,45 @@ const ServiceDetails = ({ serviceType, onClose }) => {
     <div key={notification._id} className="col-md-6 col-lg-4 mb-4">
       <div className="card h-100 shadow-sm">
         <div className="card-body">
-          <div className="d-flex justify-content-between align-items-start mb-2">
-            <h6 className="card-title mb-0">{notification.title}</h6>
-            <span className={`badge ${notification.type === 'urgent' ? 'bg-danger' : notification.type === 'important' ? 'bg-warning' : 'bg-info'}`}>
-              {notification.type}
-            </span>
+          <h6 className="card-title text-primary fw-bold">{notification.title}</h6>
+          <p className="card-text small text-muted mb-2">{notification.message}</p>
+          
+          <div className="mb-3">
+            <small className="text-muted">
+              <FaClock className="me-1" />
+              {new Date(notification.createdAt).toLocaleDateString()}
+            </small>
           </div>
-          <p className="card-text small text-muted">{notification.message.substring(0, 100)}...</p>
-          <div className="mb-2">
-            <span className="badge bg-secondary me-1">{notification.category}</span>
+          
+          <div className="d-flex justify-content-between align-items-center">
+            <span className="badge bg-info">{notification.type}</span>
+            <button 
+              type="button"
+              className="btn btn-outline-primary btn-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Handle read more - you can add more functionality here
+                console.log('Read more for:', notification.title);
+              }}
+            >
+              Read More
+            </button>
           </div>
-          <p className="small text-muted mb-0">
-            <i className="fas fa-calendar me-1"></i>
-            {new Date(notification.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-        <div className="card-footer bg-transparent">
-          <button className="btn btn-outline-primary btn-sm w-100">
-            Read More
-          </button>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
+    <div className="modal fade show service-details-modal" style={{ display: 'block' }} tabIndex="-1">
       <div className="modal-dialog modal-xl">
-        <div className="modal-content">
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header bg-primary text-white">
             <h5 className="modal-title">
-              <i className={`fas ${serviceType === 'schemes' ? 'fa-bullhorn' : serviceType === 'exams' ? 'fa-graduation-cap' : 'fa-file-invoice-dollar'} me-2`}></i>
+              {serviceType === 'schemes' ? <FaBullhorn className="me-2" /> : 
+               serviceType === 'exams' ? <FaGraduationCap className="me-2" /> : 
+               serviceType === 'tax' ? <FaFileInvoiceDollar className="me-2" /> :
+               <FaFileInvoiceDollar className="me-2" />}
               {getServiceTitle()}
             </h5>
             <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
@@ -161,16 +189,14 @@ const ServiceDetails = ({ serviceType, onClose }) => {
             
             {loading && (
               <div className="text-center py-5">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
+                <FaSpinner className="fa-spin text-primary" style={{ fontSize: '3rem' }} />
                 <p className="mt-3">Loading {getServiceTitle()}...</p>
               </div>
             )}
             
             {error && (
               <div className="alert alert-danger text-center">
-                <i className="fas fa-exclamation-triangle me-2"></i>
+                <FaExclamationTriangle className="me-2" />
                 {error}
                 <button className="btn btn-outline-danger btn-sm ms-3" onClick={fetchData}>
                   Try Again
@@ -180,7 +206,7 @@ const ServiceDetails = ({ serviceType, onClose }) => {
             
             {!loading && !error && data.length === 0 && (
               <div className="text-center py-5">
-                <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <FaInbox className="text-muted mb-3" style={{ fontSize: '3rem' }} />
                 <h5 className="text-muted">No {getServiceTitle()} found</h5>
                 <p className="text-muted">Check back later for updates.</p>
               </div>

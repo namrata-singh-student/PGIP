@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaSearch, FaUser, FaGraduationCap, FaBriefcase, FaHome, FaHeart, FaShieldAlt, FaMoneyBillWave, FaFileAlt, FaBell, FaStar, FaArrowRight, FaChartLine, FaUsers, FaHandshake } from 'react-icons/fa';
+import ServiceDetails from './ServiceDetails';
 
 const HomePage = ({ onSearch, onExploreClick, isAuthenticated, userProfile }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [schemes, setSchemes] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [selectedServiceType, setSelectedServiceType] = useState(null);
 
   // Government service categories
   const categories = [
@@ -56,13 +57,39 @@ const HomePage = ({ onSearch, onExploreClick, isAuthenticated, userProfile }) =>
   };
 
   const handleCategoryClick = (categoryId) => {
+    console.log('Category clicked:', categoryId);
     setSelectedCategory(categoryId);
-    // Filter schemes based on category
-    if (categoryId === 'all') {
-      // Show all schemes
-    } else {
-      // Filter by category
-    }
+    // Open service modal with category-specific content
+    setSelectedServiceType('schemes');
+    setShowServiceModal(true);
+    console.log('Modal state set:', { showServiceModal: true, selectedServiceType: 'schemes' });
+  };
+
+  const handleQuickServiceClick = (serviceName) => {
+    console.log('Quick service clicked:', serviceName);
+    // Map service names to service types
+    const serviceMap = {
+      'Aadhaar Services': 'documents',
+      'PAN Services': 'documents', 
+      'Driving License': 'documents',
+      'Passport Services': 'documents',
+      'Birth Certificate': 'documents',
+      'Death Certificate': 'documents',
+      'Income Tax': 'tax',
+      'GST Services': 'tax'
+    };
+    
+    const serviceType = serviceMap[serviceName] || 'schemes';
+    setSelectedServiceType(serviceType);
+    setShowServiceModal(true);
+    console.log('Modal state set:', { showServiceModal: true, selectedServiceType: serviceType });
+  };
+
+  const handleSchemeClick = (scheme) => {
+    console.log('Scheme clicked:', scheme.name);
+    setSelectedServiceType('schemes');
+    setShowServiceModal(true);
+    console.log('Modal state set:', { showServiceModal: true, selectedServiceType: 'schemes' });
   };
 
   const getStatusBadge = (status) => {
@@ -188,7 +215,13 @@ const HomePage = ({ onSearch, onExploreClick, isAuthenticated, userProfile }) =>
                     <p className="card-text text-muted mb-2">
                       {category.count} services available
                     </p>
-                    <button className="btn btn-outline-primary btn-sm">
+                    <button 
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCategoryClick(category.id);
+                      }}
+                    >
                       Explore <FaArrowRight className="ms-1" />
                     </button>
                   </div>
@@ -216,7 +249,10 @@ const HomePage = ({ onSearch, onExploreClick, isAuthenticated, userProfile }) =>
                     </div>
                     <h6 className="card-title">{service.name}</h6>
                     <p className="card-text text-muted small mb-3">{service.description}</p>
-                    <button className="btn btn-primary btn-sm w-100">
+                    <button 
+                      className="btn btn-primary btn-sm w-100"
+                      onClick={() => handleQuickServiceClick(service.name)}
+                    >
                       Access Service
                     </button>
                   </div>
@@ -253,7 +289,10 @@ const HomePage = ({ onSearch, onExploreClick, isAuthenticated, userProfile }) =>
                       </small>
                     </div>
                     <div className="d-flex gap-2">
-                      <button className="btn btn-primary btn-sm">
+                      <button 
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handleSchemeClick(scheme)}
+                      >
                         Learn More
                       </button>
                       <button className="btn btn-outline-secondary btn-sm">
@@ -353,6 +392,27 @@ const HomePage = ({ onSearch, onExploreClick, isAuthenticated, userProfile }) =>
           )}
         </div>
       </section>
+
+      {/* Service Details Modal */}
+      {showServiceModal && selectedServiceType && (
+        <ServiceDetails 
+          serviceType={selectedServiceType} 
+          onClose={() => {
+            console.log('Closing modal');
+            setShowServiceModal(false);
+            setSelectedServiceType(null);
+          }} 
+        />
+      )}
+      
+      {/* Debug info - remove this later */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ position: 'fixed', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px', borderRadius: '5px', fontSize: '12px', zIndex: 9999 }}>
+          Modal State: {showServiceModal ? 'Open' : 'Closed'}<br/>
+          Service Type: {selectedServiceType || 'None'}<br/>
+          Selected Category: {selectedCategory}
+        </div>
+      )}
     </div>
   );
 };

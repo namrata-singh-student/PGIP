@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PGIP Portal</title>
+    <style>
+      :root { color-scheme: light dark; }
+      html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+      .container { min-height: 100%; display: grid; place-items: center; padding: 24px; background: radial-gradient(1200px 1200px at 100% 0, rgba(118,75,162,.12), transparent), radial-gradient(1200px 1200px at 0 100%, rgba(102,126,234,.12), transparent); }
+      .card { max-width: 720px; width: 100%; background: rgba(255,255,255,.85); backdrop-filter: blur(6px); border-radius: 16px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.12); color: #1a1a1a; }
+      @media (prefers-color-scheme: dark) { .card { background: rgba(24,24,28,.85); color: #f3f3f3; } }
+      h1 { margin: 0 0 8px; font-size: 1.75rem; }
+      p { margin: 0 0 16px; line-height: 1.6; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+      a.button { display: inline-block; padding: 10px 14px; border-radius: 10px; text-decoration: none; font-weight: 600; border: 1px solid rgba(0,0,0,.1); background: #ffffff; color: #1a1a1a; }
+      a.button.primary { background: #667eea; color: white; border-color: #667eea; }
+      a.button.secondary { background: #f0f3ff; color: #2a2a2a; }
+      @media (prefers-color-scheme: dark) {
+        a.button { background: #2a2f3a; color: #eaeaea; border-color: #3a4050; }
+        a.button.secondary { background: #2a2f3a; }
+      }
+      .muted { font-size: 0.9rem; opacity: .8; }
+      .spinner { width: 18px; height: 18px; border: 2px solid rgba(0,0,0,.2); border-top-color: #667eea; border-radius: 50%; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle; margin-right: 8px; }
+      @media (prefers-color-scheme: dark) { .spinner { border-color: rgba(255,255,255,.2); border-top-color: #8ba0ff; } }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>PGIP Portal</h1>
+        <p id="status"><span class="spinner"></span>Redirecting you to the application…</p>
+        <div class="actions">
+          <a class="button primary" href="frontend/index.html">Open Vanilla Frontend</a>
+          <a class="button secondary" href="frontend-react/">Open React App (dev)</a>
+        </div>
+        <p class="muted" style="margin-top:12px">If you are not redirected automatically, use the links above.</p>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // Allow disabling auto-redirect via query (?noRedirect=1)
+        var params = new URLSearchParams(location.search);
+        if (params.get('noRedirect')) {
+          document.getElementById('status').textContent = 'Auto-redirect disabled. Use the links below to continue.';
+          return;
+        }
+
+        // Try vanilla static app first (safest for static hosting)
+        var candidates = [
+          'frontend/index.html',
+          // If a React build is committed or published from root
+          'frontend-react/build/index.html',
+          // Fallback to React source folder (may not work without a dev server)
+          'frontend-react/public/index.html'
+        ];
+
+        function tryNext(index) {
+          if (index >= candidates.length) {
+            document.getElementById('status').textContent = 'Could not auto-detect an app entry. Use the links below to continue.';
+            return;
+          }
+          var url = candidates[index];
+          fetch(url, { method: 'HEAD', cache: 'no-store' })
+            .then(function (res) {
+              if (res.ok) {
+                location.href = url;
+              } else {
+                tryNext(index + 1);
+              }
+            })
+            .catch(function () { tryNext(index + 1); });
+        }
+
+        tryNext(0);
+      })();
+    </script>
+  </body>
+  </html>
+
+

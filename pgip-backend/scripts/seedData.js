@@ -209,6 +209,204 @@ const sampleSchemes = [
       address: "Ministry of Skill Development"
     },
     budget: 17000000000
+  },
+  {
+    title: "Aadhaar Services",
+    description: "Comprehensive Aadhaar services including enrollment, updates, and verification for all citizens.",
+    category: "documents",
+    eligibility: {
+      age: { min: 0, max: 100 },
+      income: { min: 0, max: 1000000 },
+      occupation: ["all"],
+      states: ["all"],
+      gender: "all",
+      education: "any"
+    },
+    benefits: [
+      "Unique identification number",
+      "Access to government services",
+      "Digital identity verification",
+      "Financial inclusion"
+    ],
+    documents: [
+      "Birth certificate",
+      "Address proof",
+      "Identity proof",
+      "Passport size photo"
+    ],
+    applicationProcess: [
+      "Visit Aadhaar enrollment center",
+      "Submit required documents",
+      "Biometric verification",
+      "Receive Aadhaar number"
+    ],
+    status: "active",
+    website: "https://uidai.gov.in",
+    contactInfo: {
+      phone: "1947",
+      email: "help@uidai.gov.in",
+      address: "UIDAI, New Delhi"
+    },
+    budget: 50000000000
+  },
+  {
+    title: "PAN Card Services",
+    description: "Permanent Account Number services for tax identification and financial transactions.",
+    category: "documents",
+    eligibility: {
+      age: { min: 18, max: 100 },
+      income: { min: 0, max: 1000000 },
+      occupation: ["all"],
+      states: ["all"],
+      gender: "all",
+      education: "any"
+    },
+    benefits: [
+      "Tax identification number",
+      "Required for financial transactions",
+      "Digital signature capability",
+      "Government service access"
+    ],
+    documents: [
+      "Aadhaar Card",
+      "Address proof",
+      "Identity proof",
+      "Passport size photo"
+    ],
+    applicationProcess: [
+      "Apply online through NSDL/UTIITSL",
+      "Submit required documents",
+      "Pay application fee",
+      "Receive PAN card"
+    ],
+    status: "active",
+    website: "https://www.nsdl.co.in",
+    contactInfo: {
+      phone: "1800-222-990",
+      email: "support@nsdl.co.in",
+      address: "NSDL, Mumbai"
+    },
+    budget: 20000000000
+  },
+  {
+    title: "Passport Services",
+    description: "Indian passport application and renewal services for international travel.",
+    category: "documents",
+    eligibility: {
+      age: { min: 18, max: 100 },
+      income: { min: 0, max: 1000000 },
+      occupation: ["all"],
+      states: ["all"],
+      gender: "all",
+      education: "any"
+    },
+    benefits: [
+      "International travel document",
+      "Government identity proof",
+      "Visa application requirement",
+      "Global recognition"
+    ],
+    documents: [
+      "Aadhaar Card",
+      "PAN Card",
+      "Address proof",
+      "Birth certificate",
+      "Passport size photos"
+    ],
+    applicationProcess: [
+      "Apply online through Passport Seva",
+      "Book appointment",
+      "Submit documents at PSK",
+      "Receive passport"
+    ],
+    status: "active",
+    website: "https://passportindia.gov.in",
+    contactInfo: {
+      phone: "1800-258-1800",
+      email: "support@passportindia.gov.in",
+      address: "Passport Seva Kendra"
+    },
+    budget: 15000000000
+  },
+  {
+    title: "Income Tax Filing Services",
+    description: "Comprehensive income tax filing and consultation services for individuals and businesses.",
+    category: "tax",
+    eligibility: {
+      age: { min: 18, max: 100 },
+      income: { min: 250000, max: 1000000 },
+      occupation: ["all"],
+      states: ["all"],
+      gender: "all",
+      education: "any"
+    },
+    benefits: [
+      "Professional tax filing assistance",
+      "Tax optimization advice",
+      "Compliance support",
+      "Refund tracking"
+    ],
+    documents: [
+      "PAN Card",
+      "Aadhaar Card",
+      "Form 16/16A",
+      "Bank statements",
+      "Investment proofs"
+    ],
+    applicationProcess: [
+      "Consult tax professional",
+      "Gather required documents",
+      "File tax return",
+      "Track refund status"
+    ],
+    status: "active",
+    website: "https://www.incometax.gov.in",
+    contactInfo: {
+      phone: "1800-425-2229",
+      email: "support@incometax.gov.in",
+      address: "Income Tax Department"
+    },
+    budget: 10000000000
+  },
+  {
+    title: "GST Registration Services",
+    description: "Goods and Services Tax registration and compliance services for businesses.",
+    category: "tax",
+    eligibility: {
+      age: { min: 18, max: 100 },
+      income: { min: 20000000, max: 100000000 },
+      occupation: ["business-owner", "self-employed"],
+      states: ["all"],
+      gender: "all",
+      education: "any"
+    },
+    benefits: [
+      "GST registration certificate",
+      "Input tax credit benefits",
+      "Business compliance",
+      "Digital invoice generation"
+    ],
+    documents: [
+      "PAN Card",
+      "Aadhaar Card",
+      "Business registration",
+      "Bank account details",
+      "Address proof"
+    ],
+    applicationProcess: [
+      "Apply online through GST portal",
+      "Submit required documents",
+      "Verification process",
+      "Receive GST certificate"
+    ],
+    status: "active",
+    website: "https://www.gst.gov.in",
+    contactInfo: {
+      phone: "1800-103-4786",
+      email: "support@gst.gov.in",
+      address: "GST Department"
+    },
+    budget: 8000000000
   }
 ];
 

@@ -13,7 +13,7 @@ const SchemeSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['education', 'health', 'agriculture', 'employment', 'housing', 'women', 'senior-citizens', 'youth', 'other']
+    enum: ['education', 'health', 'agriculture', 'employment', 'housing', 'women', 'senior-citizens', 'youth', 'documents', 'tax', 'other']
   },
   eligibility: {
     age: {
