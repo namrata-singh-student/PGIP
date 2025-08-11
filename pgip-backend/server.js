@@ -1,6 +1,5 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const path = require("path");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const schemeRoutes = require("./routes/schemes");
@@ -18,10 +17,6 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Serve static assets for frontends so root index links work
-app.use("/frontend", express.static(path.join(__dirname, "..", "frontend")));
-app.use("/frontend-react", express.static(path.join(__dirname, "..", "frontend-react")));
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -74,12 +69,6 @@ app.get("/api", (req, res) => {
       },
     },
   });
-});
-
-// Serve root-level index.html as the main entry
-app.get("/", (req, res) => {
-  const rootIndexPath = path.join(__dirname, "..", "index.html");
-  res.sendFile(rootIndexPath);
 });
 
 const PORT = process.env.PORT || 5000;

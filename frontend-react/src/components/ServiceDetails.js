@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { FaBullhorn, FaGraduationCap, FaFileInvoiceDollar, FaClock, FaExclamationTriangle, FaInbox, FaSpinner } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaBullhorn, FaGraduationCap, FaFileInvoiceDollar, FaClock, FaCalendar, FaExclamationTriangle, FaInbox, FaSpinner } from 'react-icons/fa';
 
 const ServiceDetails = ({ serviceType, onClose }) => {
   const [data, setData] = useState([]);
@@ -10,11 +10,18 @@ const ServiceDetails = ({ serviceType, onClose }) => {
 
   console.log('ServiceDetails rendered with:', { serviceType, onClose });
 
-  const fetchData = useCallback(async () => {
+  useEffect(() => {
+    console.log('ServiceDetails useEffect triggered, fetching data for:', serviceType);
+    fetchData();
+  }, [serviceType, currentPage]);
+
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
+    
     try {
       let url = '';
+      
       switch (serviceType) {
         case 'schemes':
           url = `/api/schemes?page=${currentPage}&limit=6`;
@@ -31,12 +38,24 @@ const ServiceDetails = ({ serviceType, onClose }) => {
         default:
           url = `/api/schemes?page=${currentPage}&limit=6`;
       }
+
       const token = localStorage.getItem('token');
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(url, { headers });
-      if (!response.ok) throw new Error('Failed to fetch data');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
       const result = await response.json();
+      
       if (serviceType === 'tax') {
         setData(result.notifications || []);
         setTotalPages(result.totalPages || 1);
@@ -44,18 +63,14 @@ const ServiceDetails = ({ serviceType, onClose }) => {
         setData(result.schemes || []);
         setTotalPages(result.totalPages || 1);
       }
+      
     } catch (err) {
       console.error('Fetch error:', err);
       setError('Failed to load data. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [serviceType, currentPage]);
-
-  useEffect(() => {
-    console.log('ServiceDetails useEffect triggered, fetching data for:', serviceType);
-    fetchData();
-  }, [fetchData, serviceType]);
+  };
 
   const getServiceTitle = () => {
     switch (serviceType) {

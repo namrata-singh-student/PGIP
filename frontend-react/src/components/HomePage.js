@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch, FaUser, FaGraduationCap, FaBriefcase, FaHome, FaHeart, FaShieldAlt, FaMoneyBillWave, FaFileAlt, FaBell, FaStar, FaArrowRight, FaChartLine, FaUsers, FaHandshake } from 'react-icons/fa';
 import ServiceDetails from './ServiceDetails';
 
 const HomePage = ({ onSearch, onExploreClick, isAuthenticated, userProfile }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [schemes, setSchemes] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [selectedServiceType, setSelectedServiceType] = useState(null);
 
