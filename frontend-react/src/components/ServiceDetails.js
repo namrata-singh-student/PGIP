@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { FaBullhorn, FaGraduationCap, FaFileInvoiceDollar, FaClock, FaCalendar, FaExclamationTriangle, FaInbox, FaSpinner } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Modal, Button, Row, Col, Card, Badge, Alert, Pagination, Spinner } from 'react-bootstrap';
+import { FaBullhorn, FaGraduationCap, FaFileInvoiceDollar, FaClock, FaExclamationTriangle, FaInbox, FaSpinner } from 'react-icons/fa';
 
-const ServiceDetails = ({ serviceType, onClose }) => {
+const ServiceDetails = ({ serviceType, onClose, show }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showItemDetails, setShowItemDetails] = useState(false);
 
-  console.log('ServiceDetails rendered with:', { serviceType, onClose });
+  console.log('ServiceDetails rendered with:', { serviceType, onClose, show });
 
-  useEffect(() => {
-    console.log('ServiceDetails useEffect triggered, fetching data for:', serviceType);
-    fetchData();
-  }, [serviceType, currentPage]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    console.log('fetchData called with:', { serviceType, currentPage });
     setLoading(true);
     setError(null);
     
@@ -39,6 +38,7 @@ const ServiceDetails = ({ serviceType, onClose }) => {
           url = `/api/schemes?page=${currentPage}&limit=6`;
       }
 
+      console.log('Making API call to:', url);
       const token = localStorage.getItem('token');
       const headers = {
         'Content-Type': 'application/json'
@@ -48,13 +48,18 @@ const ServiceDetails = ({ serviceType, onClose }) => {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
+      console.log('Request headers:', headers);
       const response = await fetch(url, { headers });
       
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch data');
+        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
+      console.log('API response:', result);
       
       if (serviceType === 'tax') {
         setData(result.notifications || []);
@@ -64,13 +69,22 @@ const ServiceDetails = ({ serviceType, onClose }) => {
         setTotalPages(result.totalPages || 1);
       }
       
+      console.log('Data set successfully:', { data: result, serviceType });
+      
     } catch (err) {
       console.error('Fetch error:', err);
-      setError('Failed to load data. Please try again.');
+      setError(`Failed to load data: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  };
+  }, [serviceType, currentPage]);
+
+  useEffect(() => {
+    console.log('ServiceDetails useEffect triggered, fetching data for:', serviceType);
+    if (show) {
+      fetchData();
+    }
+  }, [show, fetchData]);
 
   const getServiceTitle = () => {
     switch (serviceType) {
@@ -113,10 +127,15 @@ const ServiceDetails = ({ serviceType, onClose }) => {
     return 'Not specified';
   };
 
+  const handleViewDetails = (item) => {
+    setSelectedItem(item);
+    setShowItemDetails(true);
+  };
+
   const renderSchemeCard = (scheme) => (
-    <div key={scheme._id} className="col-md-6 col-lg-4 mb-4">
-      <div className="card h-100 shadow-sm">
-        <div className="card-body">
+    <Col key={scheme._id} md={6} lg={4} className="mb-4">
+      <Card className="h-100 shadow-sm">
+        <Card.Body>
           <h6 className="card-title text-primary fw-bold">{scheme.title}</h6>
           <p className="card-text small text-muted mb-2">{scheme.description}</p>
           
@@ -133,28 +152,24 @@ const ServiceDetails = ({ serviceType, onClose }) => {
           </div>
           
           <div className="d-flex justify-content-between align-items-center">
-            <span className="badge bg-success">{scheme.category}</span>
-            <button 
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle view details - you can add more functionality here
-                console.log('View details for:', scheme.title);
-              }}
+            <Badge bg="success">{scheme.category}</Badge>
+            <Button 
+              variant="primary" 
+              size="sm"
+              onClick={() => handleViewDetails(scheme)}
             >
               View Details
-            </button>
+            </Button>
           </div>
-        </div>
-      </div>
-    </div>
+        </Card.Body>
+      </Card>
+    </Col>
   );
 
   const renderNotificationCard = (notification) => (
-    <div key={notification._id} className="col-md-6 col-lg-4 mb-4">
-      <div className="card h-100 shadow-sm">
-        <div className="card-body">
+    <Col key={notification._id} md={6} lg={4} className="mb-4">
+      <Card className="h-100 shadow-sm">
+        <Card.Body>
           <h6 className="card-title text-primary fw-bold">{notification.title}</h6>
           <p className="card-text small text-muted mb-2">{notification.message}</p>
           
@@ -166,127 +181,164 @@ const ServiceDetails = ({ serviceType, onClose }) => {
           </div>
           
           <div className="d-flex justify-content-between align-items-center">
-            <span className="badge bg-info">{notification.type}</span>
-            <button 
-              type="button"
-              className="btn btn-outline-primary btn-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle read more - you can add more functionality here
-                console.log('Read more for:', notification.title);
-              }}
+            <Badge bg="info">{notification.type}</Badge>
+            <Button 
+              variant="outline-primary" 
+              size="sm"
+              onClick={() => handleViewDetails(notification)}
             >
               Read More
-            </button>
+            </Button>
           </div>
-        </div>
-      </div>
-    </div>
+        </Card.Body>
+      </Card>
+    </Col>
   );
 
-  return (
-    <div className="modal fade show service-details-modal" style={{ display: 'block' }} tabIndex="-1">
-      <div className="modal-dialog modal-xl">
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header bg-primary text-white">
-            <h5 className="modal-title">
-              {serviceType === 'schemes' ? <FaBullhorn className="me-2" /> : 
-               serviceType === 'exams' ? <FaGraduationCap className="me-2" /> : 
-               serviceType === 'tax' ? <FaFileInvoiceDollar className="me-2" /> :
-               <FaFileInvoiceDollar className="me-2" />}
-              {getServiceTitle()}
-            </h5>
-            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
-          </div>
-          
-          <div className="modal-body">
-            <p className="text-muted mb-4">{getServiceDescription()}</p>
-            
-            {loading && (
-              <div className="text-center py-5">
-                <FaSpinner className="fa-spin text-primary" style={{ fontSize: '3rem' }} />
-                <p className="mt-3">Loading {getServiceTitle()}...</p>
-              </div>
-            )}
-            
-            {error && (
-              <div className="alert alert-danger text-center">
-                <FaExclamationTriangle className="me-2" />
-                {error}
-                <button className="btn btn-outline-danger btn-sm ms-3" onClick={fetchData}>
-                  Try Again
-                </button>
-              </div>
-            )}
-            
-            {!loading && !error && data.length === 0 && (
-              <div className="text-center py-5">
-                <FaInbox className="text-muted mb-3" style={{ fontSize: '3rem' }} />
-                <h5 className="text-muted">No {getServiceTitle()} found</h5>
-                <p className="text-muted">Check back later for updates.</p>
-              </div>
-            )}
-            
-            {!loading && !error && data.length > 0 && (
-              <>
-                <div className="row">
-                  {serviceType === 'tax' 
-                    ? data.map(renderNotificationCard)
-                    : data.map(renderSchemeCard)
-                  }
+  const renderItemDetails = () => {
+    if (!selectedItem) return null;
+
+    return (
+      <Modal show={showItemDetails} onHide={() => setShowItemDetails(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {serviceType === 'tax' ? selectedItem.title : selectedItem.title}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {serviceType === 'tax' ? (
+            <div>
+              <p className="mb-3">{selectedItem.message}</p>
+              <div className="row">
+                <div className="col-md-6">
+                  <p><strong>Type:</strong> {selectedItem.type}</p>
+                  <p><strong>Created:</strong> {new Date(selectedItem.createdAt).toLocaleDateString()}</p>
                 </div>
-                
-                {totalPages > 1 && (
-                  <nav className="mt-4">
-                    <ul className="pagination justify-content-center">
-                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <button 
-                          className="page-link" 
-                          onClick={() => setCurrentPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                        >
-                          Previous
-                        </button>
-                      </li>
-                      
-                      {[...Array(totalPages)].map((_, index) => (
-                        <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                          <button 
-                            className="page-link" 
-                            onClick={() => setCurrentPage(index + 1)}
-                          >
-                            {index + 1}
-                          </button>
-                        </li>
-                      ))}
-                      
-                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                        <button 
-                          className="page-link" 
-                          onClick={() => setCurrentPage(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                        >
-                          Next
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                )}
-              </>
-            )}
-          </div>
+                <div className="col-md-6">
+                  <p><strong>Priority:</strong> {selectedItem.priority || 'Normal'}</p>
+                  <p><strong>Status:</strong> {selectedItem.status || 'Active'}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="mb-3">{selectedItem.description}</p>
+              <div className="row">
+                <div className="col-md-6">
+                  <p><strong>Category:</strong> {selectedItem.category}</p>
+                  <p><strong>Eligibility:</strong> {formatEligibility(selectedItem.eligibility)}</p>
+                  <p><strong>Benefits:</strong> {selectedItem.benefits}</p>
+                </div>
+                <div className="col-md-6">
+                  <p><strong>Application Process:</strong> {selectedItem.applicationProcess || 'Online application available'}</p>
+                  <p><strong>Deadline:</strong> {selectedItem.deadline || 'No deadline specified'}</p>
+                  <p><strong>Contact:</strong> {selectedItem.contact || 'Contact your local government office'}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowItemDetails(false)}>
+            Close
+          </Button>
+          <Button variant="primary">
+            {serviceType === 'tax' ? 'Mark as Read' : 'Apply Now'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  };
+
+  return (
+    <>
+      <Modal show={show} onHide={onClose} size="xl" scrollable>
+        <Modal.Header closeButton className="bg-primary text-white">
+          <Modal.Title>
+            {serviceType === 'schemes' ? <FaBullhorn className="me-2" /> : 
+             serviceType === 'exams' ? <FaGraduationCap className="me-2" /> : 
+             serviceType === 'tax' ? <FaFileInvoiceDollar className="me-2" /> :
+             <FaFileInvoiceDollar className="me-2" />}
+            {getServiceTitle()}
+          </Modal.Title>
+        </Modal.Header>
+        
+        <Modal.Body>
+          <p className="text-muted mb-4">{getServiceDescription()}</p>
           
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Backdrop */}
-      <div className="modal-backdrop fade show" onClick={onClose}></div>
-    </div>
+          {loading && (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="primary" size="lg" />
+              <p className="mt-3">Loading {getServiceTitle()}...</p>
+            </div>
+          )}
+          
+          {error && (
+            <Alert variant="danger" className="text-center">
+              <FaExclamationTriangle className="me-2" />
+              {error}
+              <Button variant="outline-danger" size="sm" className="ms-3" onClick={fetchData}>
+                Try Again
+              </Button>
+            </Alert>
+          )}
+          
+          {!loading && !error && data.length === 0 && (
+            <div className="text-center py-5">
+              <FaInbox className="text-muted mb-3" style={{ fontSize: '3rem' }} />
+              <h5 className="text-muted">No {getServiceTitle()} found</h5>
+              <p className="text-muted">Check back later for updates.</p>
+            </div>
+          )}
+          
+          {!loading && !error && data.length > 0 && (
+            <>
+              <Row>
+                {serviceType === 'tax' 
+                  ? data.map(renderNotificationCard)
+                  : data.map(renderSchemeCard)
+                }
+              </Row>
+              
+              {totalPages > 1 && (
+                <div className="mt-4 d-flex justify-content-center">
+                  <Pagination>
+                    <Pagination.Prev 
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    />
+                    
+                    {[...Array(totalPages)].map((_, index) => (
+                      <Pagination.Item 
+                        key={index + 1} 
+                        active={currentPage === index + 1}
+                        onClick={() => setCurrentPage(index + 1)}
+                      >
+                        {index + 1}
+                      </Pagination.Item>
+                    ))}
+                    
+                    <Pagination.Next 
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    />
+                  </Pagination>
+                </div>
+              )}
+            </>
+          )}
+        </Modal.Body>
+        
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Item Details Modal */}
+      {renderItemDetails()}
+    </>
   );
 };
 

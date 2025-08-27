@@ -767,3 +767,52 @@ p {
   }
 }
 
+/* Modal Styles */
+.modal-xl {
+  max-width: 90%;
+}
+
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modal-content {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  border-radius: 15px 15px 0 0;
+  border-bottom: none;
+}
+
+.modal-footer {
+  border-radius: 0 0 15px 15px;
+  border-top: none;
+}
+
+/* Card hover effects */
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Pagination styles */
+.pagination .page-item .page-link {
+  border-radius: 5px;
+  margin: 0 2px;
+  border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.pagination .page-item .page-link:hover {
+  background-color: #e9ecef;
+}
+
